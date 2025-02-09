@@ -5,7 +5,7 @@ https://fabianlee.org/2022/01/12/kubernetes-nfs-mount-using-dynamic-volume-and-s
 https://artifacthub.io/packages/helm/nfs-subdir-external-provisioner/nfs-subdir-external-provisioner 
 
 ### Step 1: Install Nfs-server on share server:  
-```
+```console
 #Install NFS server for CentOS/Redhat
 yum install nfs-utils nfs-utils-lib -y
 chkconfig rpcbind on
@@ -28,7 +28,7 @@ showmount -e 127.0.0.1
 ```
 
 ### B2: Install nfs-client for Worker-Node
-```
+```console
 #Install NFS client for CentOS/Redhat
 yum install nfs-utils nfs-utils-lib -y
 chkconfig nfs off
@@ -38,7 +38,7 @@ chkconfig rpcbind off
 apt-get install nfs-common -y
 ```
 ### B3: Helm install
-```
+```console
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
 helm repo update
 helm pull nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
@@ -56,7 +56,7 @@ helm install nfs-provisioner . --set nfs.server=192.168.88.12 \
 
 ### B4: Test
 `vim pvc-test.yaml`
-```
+```console
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -70,7 +70,7 @@ spec:
       storage: 2Gi
 ```
 `vim pod-test.yaml`
-```
+```console
 apiVersion: v1
 kind: Pod
 metadata:

@@ -23,7 +23,7 @@ cd kube-prometheus-stack/
 `vim values.yaml
 `
 - enable ingress & tls
-```
+```console
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -38,7 +38,7 @@ cd kube-prometheus-stack/
       - grafana.xxx.vn
 ```
 - use nfs-provision
-```
+```console
     storageSpec:
      volumeClaimTemplate:
        spec:
@@ -57,7 +57,7 @@ Sample file:
 
 
 ### Nginx proxy to stack (test-only)
-```
+```console
 server {
     listen 80;
 

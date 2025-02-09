@@ -8,7 +8,7 @@ MetalLB is a Kubernetes service implementation for LoadBalancer-type services. W
 
 If you’re using kube-proxy in IPVS mode, since Kubernetes v1.14.2 you have to enable strict ARP mode. You can achieve this by editing kube-proxy config in current cluster and Set ARP mode true. Find out this KubeProxyConfiguratuon block and change only `strictARP: true`
 
-```
+```console
 kubectl get configmap kube-proxy -n kube-system -o yaml | \
 sed -e "s/strictARP: false/strictARP: true/" | \
 kubectl apply -f - -n kube-system
@@ -20,15 +20,15 @@ kubectl apply -f - -n kube-system
 
 ### Steps 3: Layer 2 Configuration for to advertise the IP Pool
 
-```
+
 If see Error:
 Error from server (InternalError): error when creating "metallb-ipadd-pool.yaml": Internal error occurred: failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io": failed to call webhook: Post "https://webhook-service.metallb-system.svc:443/validate-metallb-io-v1beta1-ipaddresspool?timeout=10s": dial tcp 10.103.157.82:443: connect: connection refused
-
+```console
 kubectl get validatingwebhookconfiguration
 kubectl delete validatingwebhookconfigurations.admissionregistration.k8s.io metallb-webhook-configuration
 ```
 
-```
+```console
 cat << EOF > metallb-ipadd-pool.yaml
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -45,7 +45,7 @@ EOF
 
 ### Steps 4: Advertise the IP Address Pool
 
-```
+```console
 cat << EOF > metallb-pool-advertise.yaml
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
@@ -71,7 +71,7 @@ speaker-h8tr2                 1/1     Running   0          3m33s
 
 ### Steps 5: Deploy Application and Expose service type LoadBalancer
 
-```
+```console
 kubectl create deployment nginx-web-server --image=nginx
 kubectl expose deployment nginx-web-server --port=80 --target-port=80 --type=LoadBalancer
 ```
