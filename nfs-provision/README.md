@@ -4,41 +4,49 @@ https://fabianlee.org/2022/01/12/kubernetes-nfs-mount-using-dynamic-volume-and-s
 
 https://artifacthub.io/packages/helm/nfs-subdir-external-provisioner/nfs-subdir-external-provisioner 
 
-### B1: Cài Nfs server:  
+### Step 1: Install Nfs-server on share server:  
 ```
+#Install NFS server for CentOS/Redhat
 yum install nfs-utils nfs-utils-lib -y
 chkconfig rpcbind on
 chkconfig nfs on 
 service rpcbind restart
 service nfs restart
-mkdir -p /data/nfs-k8s/ ; vim /etc/exports
-/data/nfs-k8s/ 192.168.88.0/24(rw,sync,subtree_check,no_root_squash)
-exportfs -a
-showmount -e 127.0.0.1
-```
-#Cài cho ubuntu
-apt-get install nfs-kernel-server
+
+#Install NFS server for Ubuntu
+apt-get install nfs-kernel-server -y
 systemctl enable nfs-kernel-server
 systemctl restart nfs-kernel-server
 
-
-### B2: Cài nfs client trên mỗi worker node, nếu không sẽ lỗi không mount đc vào pod.
+#Setting NFS
+mkdir -p /data/nfs-k8s/
+cat << EOF > /etc/exports
+/data/nfs-k8s/ 192.168.88.0/24(rw,sync,subtree_check,no_root_squash)
+EOF
+exportfs -a
+showmount -e 127.0.0.1
 ```
+
+### B2: Install nfs-client for Worker-Node
+```
+#Install NFS client for CentOS/Redhat
 yum install nfs-utils nfs-utils-lib -y
 chkconfig nfs off
 chkconfig rpcbind off
 
-#Cài client trên ubuntu
-apt-get install nfs-common
+#Install NFS client for Ubuntu
+apt-get install nfs-common -y
 ```
 ### B3: Helm install
 ```
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+helm repo update
 helm pull nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+
 tar -xvzf nfs-subdir-external-provisioner-x.x.x.x.tgz
 cd nfs-subdir-external-provisioner/
 k create ns nfs
-helm install nfs-provisioner . --set nfs.server=192.168.88.88 \
+helm install nfs-provisioner . --set nfs.server=192.168.88.12 \
   --set nfs.path=/data/nfs-k8s/ \
   --set storageClass.name=nfs-provision \
   --set storageClass.onDelete=Delete \
@@ -47,20 +55,21 @@ helm install nfs-provisioner . --set nfs.server=192.168.88.88 \
 ```
 
 ### B4: Test
+`vim pvc-test.yaml`
 ```
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: sc-nfs-pvc
+  name: pvc-test
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: nfs-client
+  storageClassName: nfs-provision
   resources:
     requests:
       storage: 2Gi
 ```
-
+`vim pod-test.yaml`
 ```
 apiVersion: v1
 kind: Pod
@@ -70,7 +79,7 @@ spec:
   volumes:
   - name: myvol
     persistentVolumeClaim:
-      claimName: sc-nfs-pvc
+      claimName: pvc-test
   containers:
   - image: busybox
     name: busybox
@@ -80,3 +89,4 @@ spec:
     - name: myvol
       mountPath: /data
 ```
+

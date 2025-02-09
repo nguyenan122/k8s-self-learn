@@ -28,10 +28,8 @@ kubectl get validatingwebhookconfiguration
 kubectl delete validatingwebhookconfigurations.admissionregistration.k8s.io metallb-webhook-configuration
 ```
 
-`
-vim metallb-ipadd-pool.yaml
-`
 ```
+cat << EOF > metallb-ipadd-pool.yaml
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
@@ -40,15 +38,15 @@ metadata:
 spec:
   addresses:
   - 192.168.88.150-192.168.88.250 # Change to your IP pool ex: 192.168.56.200-192.168.56.250
+EOF
 ```
 
 `kubectl apply -f metallb-ipadd-pool.yaml`
 
 ### Steps 4: Advertise the IP Address Pool
 
-`vim metallb-pool-advertise.yaml`
-
 ```
+cat << EOF > metallb-pool-advertise.yaml
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
@@ -57,6 +55,7 @@ metadata:
 spec:
   ipAddressPools:
   - first-pool
+EOF
 ```
 
 `kubectl apply -f metallb-pool-advertise.yaml`
@@ -86,3 +85,13 @@ nginx-web-server   LoadBalancer   10.104.166.72   192.168.88.240   80:31254/TCP 
 <h1>Welcome to nginx!</h1>
 ```
 It looks like you’ve successfully created and exposed the nginx-web-server deployment as a LoadBalancer service. `External IP: 192.168.88.240`
+
+
+### How to set static IP for svc
+`k edit svc xxxx`
+```
+spec:
+...
+  type: LoadBalancer
+  loadBalancerIP: 192.168.88.188
+```

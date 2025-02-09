@@ -22,7 +22,73 @@ cd kube-prometheus-stack/
 
 `vim values.yaml
 `
+- enable ingress & tls
+```
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations: {}
+    labels: {}
+    hosts:
+      - grafana.xxx.vn
+    path: /
+    tls:
+    - secretName: wildcard-tuantls
+      hosts:
+      - grafana.xxx.vn
+```
+- use nfs-provision
+```
+    storageSpec:
+     volumeClaimTemplate:
+       spec:
+         storageClassName: nfs-provision
+         accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 10Gi
+```
+Sample file: 
+
+
+`k create ns monitoring`   
+`helm -n monitoring install kps .`
+
+
+
+### Nginx proxy to stack (test-only)
+```
+server {
+    listen 80;
+
+    server_name _;
+
+    location / {
+        proxy_pass http://192.168.88.188/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name _;
+
+    ssl_certificate /etc/nginx/ca.crt;
+    ssl_certificate_key /etc/nginx/ca.key;
+
+    location / {
+        proxy_pass https://192.168.88.188/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 ```
 
-```
-
+### Add more target into Prometheus
+find keywork in values.yaml file: `additionalScrapeConfigs`
