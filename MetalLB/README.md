@@ -1,4 +1,5 @@
 Source: https://github.com/anhbka/kubernetes/blob/main/MetalLB%20Load%20Balancer.md
+Explain MetaLB very detail: https://8grams.medium.com/metallb-a-load-balancer-for-bare-metal-kubernetes-clusters-ef8a9e00c2bd
 
 ### Installing MetalLB Load Balancer for Kubernetes Bare Metal VMs Cluster
 
