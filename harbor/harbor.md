@@ -21,9 +21,9 @@ expose:
       secretName: "tuannamevn"
   ingress:
     hosts:
-      core: harbor.tuan.name.vn
+      core: harbor.xxx.vn
 ...
-externalURL: https://harbor.tuan.name.vn
+externalURL: https://harbor.xxx.vn
 ...
 existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
 harborAdminPassword: "Harbor@12345"
