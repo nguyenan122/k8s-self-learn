@@ -32,3 +32,11 @@ harborAdminPassword: "Harbor@12345"
 ```console
 helm -n harbor install harbor .
 ```
+### Step 3: How to push image to Harbor
+1. Create User
+2. Create Project "test"
+3. Add User to Project/Member
+4. docker login harbor.xxx.vn
+5. docker pull nginx:alpine
+6. docker tag nginx:alpine harbor.xxx.vn/test/nginx:alpine_v1
+7. docker push harbor.xxx.vn/test/nginx:alpine_v1
