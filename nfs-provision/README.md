@@ -19,9 +19,10 @@ systemctl enable nfs-kernel-server
 systemctl restart nfs-kernel-server
 
 #Setting NFS
-mkdir -p /data/nfs-k8s/
+mkdir -p /data/nfs-k8s/delete /data/nfs-k8s/retain
 cat << EOF > /etc/exports
-/data/nfs-k8s/ 192.168.88.0/24(rw,sync,subtree_check,no_root_squash)
+/data/nfs-k8s/delete 192.168.88.0/24(rw,sync,subtree_check,no_root_squash)
+/data/nfs-k8s/retain 192.168.88.0/24(rw,sync,subtree_check,no_root_squash)
 EOF
 exportfs -a
 showmount -e 127.0.0.1
@@ -45,13 +46,20 @@ helm pull nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
 
 tar -xvzf nfs-subdir-external-provisioner-x.x.x.x.tgz
 cd nfs-subdir-external-provisioner/
-k create ns nfs
-helm install nfs-provisioner . --set nfs.server=192.168.88.12 \
-  --set nfs.path=/data/nfs-k8s/ \
-  --set storageClass.name=nfs-provision \
+
+helm install nfs-delete . --set nfs.server=192.168.88.12 \
+  --set nfs.path=/data/nfs-k8s/delete \
+  --set storageClass.name=nfs-delete \
   --set storageClass.onDelete=Delete \
   --set storageClass.accessModes=ReadWriteMany \
-  --create-namespace --namespace nfs
+  --create-namespace --namespace nfs-delete
+
+helm install nfs-retain . --set nfs.server=192.168.88.12 \
+  --set nfs.path=/data/nfs-k8s/retain \
+  --set storageClass.name=nfs-retain \
+  --set storageClass.onDelete=Retain \
+  --set storageClass.accessModes=ReadWriteMany \
+  --create-namespace --namespace nfs-retain
 ```
 
 ### B4: Test
@@ -64,7 +72,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: nfs-provision
+  storageClassName: nfs-delete
   resources:
     requests:
       storage: 2Gi
