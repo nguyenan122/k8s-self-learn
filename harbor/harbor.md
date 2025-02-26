@@ -13,12 +13,21 @@ cd harbor/
 ```
 
 ### Step 2: Modify values.yaml
+```
+sed -i -e 's/storageClass: ""/storageClass: "nfs-retain"/g' values.yaml
+sed -i -e 's/core.harbor.domain/harbor.xxx.vn/g' values.yaml
+sed -i 's/className: ""/className: "nginx"/g' values.yaml
+Edit file value.yaml and change
+-  certSource: "auto" -> certSource: "secret"
+-  secretName: "wildcard-tuantls"
+```
+Result after run sed:
 ```console
 expose:
   type: ingress
 ...
     secret:
-      secretName: "tuannamevn"
+      secretName: "tls.xxx.vn*"
   ingress:
     hosts:
       core: harbor.xxx.vn
@@ -26,11 +35,59 @@ expose:
 externalURL: https://harbor.xxx.vn
 ...
 existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
-harborAdminPassword: "Harbor@12345"
+harborAdminPassword: "Harbor12345"
+
+
+```
+Sửa thêm persistentVolumeClaim là đc:
+```console
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      existingClaim: ""
+      storageClass: "nfs-retain"
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      annotations: {}
+    jobservice:
+      jobLog:
+        existingClaim: ""
+        storageClass: "nfs-retain"
+        subPath: ""
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        annotations: {}
+    database:
+      existingClaim: ""
+      storageClass: "nfs-retain"
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      annotations: {}
+    redis:
+      existingClaim: ""
+      storageClass: "nfs-retain"
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      annotations: {}
+    trivy:
+      existingClaim: ""
+      storageClass: "nfs-retain"
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      annotations: {}
 ```
 
+
 ```console
-helm -n harbor install harbor .
+
+
+helm -n harbor install harbor . --create-namespace
 ```
 ### Step 3: How to push image to Harbor
 1. Create User

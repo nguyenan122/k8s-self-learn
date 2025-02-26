@@ -47,18 +47,18 @@ helm pull nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
 tar -xvzf nfs-subdir-external-provisioner-x.x.x.x.tgz
 cd nfs-subdir-external-provisioner/
 
-helm install nfs-delete . --set nfs.server=192.168.88.12 \
+helm install nfs-delete . --set nfs.server=192.168.88.18 \
   --set nfs.path=/data/nfs-k8s/delete \
   --set storageClass.name=nfs-delete \
   --set storageClass.onDelete=Delete \
-  --set storageClass.accessModes=ReadWriteMany \
+  --set storageClass.accessModes=ReadWriteOne \
   --create-namespace --namespace nfs-delete
 
-helm install nfs-retain . --set nfs.server=192.168.88.12 \
+helm install nfs-retain . --set nfs.server=192.168.88.18 \
   --set nfs.path=/data/nfs-k8s/retain \
   --set storageClass.name=nfs-retain \
   --set storageClass.onDelete=Retain \
-  --set storageClass.accessModes=ReadWriteMany \
+  --set storageClass.accessModes=ReadWriteOne \
   --create-namespace --namespace nfs-retain
 ```
 

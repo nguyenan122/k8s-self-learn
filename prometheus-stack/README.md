@@ -22,7 +22,22 @@ cd kube-prometheus-stack/
 
 `vim values.yaml
 `
-- enable ingress & tls
+- Enable ingress Alertmanager (Line 607)
+```console
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations: {}
+    labels: {}
+    hosts:
+      - alertmanager.xxx.vn
+    paths: []
+    tls:
+    - secretName: wildcard-tuantls
+      hosts:
+      - alertmanager.xxx.vn
+```
+- Enable ingress Grafana (Line 1260)
 ```console
   ingress:
     enabled: true
@@ -37,13 +52,30 @@ cd kube-prometheus-stack/
       hosts:
       - grafana.xxx.vn
 ```
-- use nfs-provision
+- Enable ingress Prometheus (Line 3619)
+```console
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations: {}
+    labels: {}
+    hosts:
+      - prometheus.xxx.vn
+    paths: []
+    tls:
+    - secretName: wildcard-tuantls
+      hosts:
+      - prometheus.xxx.vn
+```
+
+
+- use nfs-provision for Prometheus (Line 4215)
 ```console
     storageSpec:
      volumeClaimTemplate:
        spec:
-         storageClassName: nfs-provision
-         accessModes: ["ReadWriteOnce"]
+         storageClassName: nfs-retain
+         accessModes: ["ReadWriteOne"]
          resources:
            requests:
              storage: 10Gi
