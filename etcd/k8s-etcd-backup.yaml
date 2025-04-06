@@ -77,7 +77,7 @@ spec:
             name: etcd-certs
           - name: backup
             persistentVolumeClaim:
-              claimName: etcd-backup
+              claimName: etcd-backup 
   schedule: "00 03 * * *"
   successfulJobsHistoryLimit: 8
   suspend: false
