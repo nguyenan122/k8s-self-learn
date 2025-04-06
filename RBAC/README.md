@@ -70,16 +70,18 @@ kubectl get csr senior1 -o jsonpath='{.status.certificate}'| base64 -d > senior1
 ```console
 kubectl create ns testenv
 
-kubectl -n testenv create role developer-readonly --verb=get,list --resource=*
+kubectl -n testenv create role developer-readonly --verb=get,list,watch --resource=*
 
 kubectl -n testenv create rolebinding developer-readonly --role=developer-readonly --group=developer
+
 ```
 
 ### Grant RBAC addtion for seninor1
 ```console
-kubectl -n testenv create role developer-modify --verb=delete,create --resource=*
+kubectl -n testenv create role developer-modify --verb=get,list,watch,delete,create,update,patch --resource=*
 
 kubectl -n testenv create rolebinding developer-modify --role=developer-modify     --user=senior1
+
 ```
 
 
