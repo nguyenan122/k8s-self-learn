@@ -4,7 +4,7 @@ https://argo-cd.readthedocs.io/en/latest/operator-manual/ingress/#kubernetesingr
 ### Cách giải 1:
 Sơ đồ  
 ```mermaid
-graph TD;
+flowchart LR;
     A[Client] -->|TCP| B(Nginx ingress controller) --> |TLS-Terminate| C(ArgoCD TLS)
 ```
 
@@ -41,7 +41,7 @@ https://argo-cd.readthedocs.io/en/latest/operator-manual/ingress/#ssl-passthroug
 
 Sơ đồ  
 ```mermaid
-graph TD;
+flowchart LR;
     A[Client] -->|TLS Terminate| B(Nginx ingress controller) --> |TLS-Terminate| C(ArgoCD TLS)
 ```
 
