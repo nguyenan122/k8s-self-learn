@@ -7,9 +7,40 @@ Có 4 loại svc:
 - ExternalName: Ánh xạ tới DNS ngoài giống CNAME hoặc 1 svc khác namespace
 
 ### 1.Cluster IP / NodePort
-Compare --port and --target-port
+#### 1.1 Compare --port and --target-port
 
 ![Images](images/cluster-ip.png)
+
+#### 1.2 Endpoint Static IP outside
+Chỉ cần tạo svc và endpoind giống tên là tự động ăn khớp
+
+`vim svc-endpoint.yaml`
+```console
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-webserver-cka03-svcn
+  namespace: kube-public
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 9999
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-webserver-cka03-svcn
+  namespace: kube-public
+subsets:
+- addresses:
+  - ip: 192.168.88.200
+  ports:
+  - port: 9999
+    protocol: TCP
+```
+`kubectl apply -f svc-endpoint.yaml`
 
 ### 2.LoadBalancer
 Tham khảo: [Metal-LB](https://github.com/nguyenan122/k8s-self-learn/tree/develop/MetalLB)
