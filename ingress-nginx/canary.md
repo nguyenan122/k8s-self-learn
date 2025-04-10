@@ -5,8 +5,9 @@ Sự khác biệt giữa Canary và Blue-Green:
 - Blue/Green là 2 production giống hệt nhau. Sau khi môi trường phụ triển khai code mới, sẽ được lái toàn bộ 100% người dùng sang luôn.
 
 
-### 2. Triển khai deployment
+## 2. Triển khai Canary
 
+### 2.1 Tạo deployment/services
 ```console
 kubectl create namespace nginx-blue
 kubectl create namespace nginx-green
@@ -151,7 +152,7 @@ kubectl apply -f green-app.yaml -n nginx-green
 kubectl apply -f blue-app.yaml -n nginx-blue
 ```
 
-### 4. Canary
+### 2.2 Tạo ingress với Annotation canary
 Tạo 2 ingress giống hệt nhau về host. Khác nhau chỉ là 1 cái thêm annotation. Muốn thay đổi tỉ lệ weight thì sửa lại % là xong.
 
 ```console
@@ -200,7 +201,7 @@ spec:
                   number: 80
 ```
 
-### 4. Test tải
+### 2.3 Test tải
 `vim get.sh`
 ```
 #!/bin/bash
@@ -237,6 +238,51 @@ echo "Green: $green ($(( green * 100 / TOTAL ))%)"
 Blue: 32 (19%), Green: 130 (80%), Total: 162
 ```
 
+### 2.4 (bonus/addition) canary-by-header
+#### 2.4.1 Có canary-by-header và weight=0
+```console
+Giải thích
+- Nếu không có header hoặc X-Canary=never hoặc giá trị khác, 100% traffic sẽ ko route vào canary
+- Nếu có header X-Canary=always, 100% traffic sẽ route vào canary
+```
+
+```console
+# Thêm canary-by-header:
+  name: canary-blue-ingress
+  namespace: nginx-blue
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "0"
+    nginx.ingress.kubernetes.io/canary-by-header: X-Canary    
+```
+Thực hiện test curl kết quả ./get.sh như sau
+
+`curl -s -H "X-Canary: always" http://canary.test.com`
+TEST CASE | KẾT QUẢ
+|:------- |:------:|
+Có Header "X-Canary: always" | Blue: 28 (100%), Green: 0 (0%), Total: 28
+KhÔng Header "X-Canary: always" | Blue: 0 (0%), Green: 20 (100%), Total: 20
+
+#### 2.4.2 Có canary-by-header và weight=20
+```console
+Giải thích
+- Nếu không có Header, traffic chia 20% : 80%
+- Nếu có Header always, 100% traffic sẽ route vào canary
+- Nếu có Header never, 100% traffic sẽ không route vào canary
+```
+```console
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "20"
+    nginx.ingress.kubernetes.io/canary-by-header: X-Canary   
+```
+Thực hiện test curl kết quả ./get.sh như sau
+
+`curl -s -H "X-Canary: always" http://canary.test.com`
+TEST CASE | KẾT QUẢ
+|:------- |:------:|
+Không Header | Blue: 10 (22%), Green: 34 (77%), Total: 44
+Có Header "X-Canary: always" | Blue: 28 (100%), Green: 0 (0%), Total: 28
+Có Header "X-Canary: never" | Blue: 0 (0%), Green: 18 (100%), Total: 18
 
 
 -----
