@@ -14,7 +14,7 @@ kubectl create namespace nginx-green
 ```
 
 `# vim blue-app.yaml`
-```
+```console
 apiVersion: v1
 kind: Service
 metadata:

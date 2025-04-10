@@ -1,13 +1,17 @@
 ### Tình huống lỗi gặp phải
 https://argo-cd.readthedocs.io/en/latest/operator-manual/ingress/#kubernetesingress-nginx
 
+### Cách giải 1:
 Sơ đồ  
-[Client] -> TCP/[Nginx ingress controller] -> TLS-Terminate/[ArgoCD TLS]
+```mermaid
+graph TD;
+    A[Client] -->|TCP| B(Nginx ingress controller) --> |TLS-Terminate| C(ArgoCD TLS)
+```
 
 TLS sẽ terminate lại ArgoCD server với annotations ssl-passthrough.
 Vậy ta phải cấu hình TCP Stream mode trên [Nginx Baremetal] 
 
-```
+```console
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -32,11 +36,15 @@ spec:
 ```
 *Chú Ý: [port:\ name: https] Không phải là giao thức HTTPS mà chỉ là port 443 only
 
-### Khắc phục
+### Cách giải 2 (tốt hơn):
 https://argo-cd.readthedocs.io/en/latest/operator-manual/ingress/#ssl-passthrough-with-cert-manager-and-lets-encrypt
 
 Sơ đồ  
-[Client] -> TLS Terminate/[Nginx ingress controller] -> TLS-Terminate/[ArgoCD TLS]
+```mermaid
+graph TD;
+    A[Client] -->|TLS Terminate| B(Nginx ingress controller) --> |TLS-Terminate| C(ArgoCD TLS)
+```
+
 
 ```console
 apiVersion: networking.k8s.io/v1
@@ -67,3 +75,5 @@ spec:
 ```
 nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"  
 Option này
+
+
