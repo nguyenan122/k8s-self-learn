@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: 
+  name: 04-app-sub-dir
+  namespace: argocd
+spec: 
+  destination:
+    namespace: 04-app-sub-dir
+    server: "https://kubernetes.default.svc"
+  project: default
+  source: 
+    path: argocd/03-applications/04-app-sub-dir/base
+    repoURL: "git@github.com:nguyenan122/k8s-self-learn.git"
+    targetRevision: HEAD
+    directory:
+      recurse: true
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

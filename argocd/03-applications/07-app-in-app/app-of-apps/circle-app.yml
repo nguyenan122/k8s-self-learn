@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 07-app-in-app-circle
+  namespace: argocd
+spec:
+  destination:
+    namespace: 07-app-in-app-circle
+    server: "https://kubernetes.default.svc"
+  project: default
+  source:
+    path: argocd/03-applications/07-app-in-app/manifests/circle
+    repoURL: "git@github.com:nguyenan122/k8s-self-learn.git"
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

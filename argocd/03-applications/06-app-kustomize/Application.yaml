@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: 
+  name: 06-app-kustomize
+  namespace: argocd
+spec: 
+  destination:
+    namespace: 06-app-kustomize
+    server: "https://kubernetes.default.svc"
+  project: default
+  source: 
+    path: argocd/03-applications/06-app-kustomize/overlays/prod
+    repoURL: "git@github.com:nguyenan122/k8s-self-learn.git"
+    targetRevision: HEAD
+    kustomize:
+      namePrefix: test-
+      commonLabels:
+        app: demo
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

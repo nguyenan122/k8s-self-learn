@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-test-04
+  name: pod-test-04
+spec:
+  containers:
+  - image: nginx
+    name: pod-test-04

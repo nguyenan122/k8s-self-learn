@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: 
+  name: 03-app-basic
+  namespace: argocd
+spec: 
+  destination: 
+    namespace: 03-app-basic
+    server: "https://kubernetes.default.svc"
+  project: default
+  source: 
+    path: argocd/03-applications/03-app-basic/base
+    repoURL: "git@github.com:nguyenan122/k8s-self-learn.git"
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

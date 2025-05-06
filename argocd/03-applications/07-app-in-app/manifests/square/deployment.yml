@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: square
+  name: square
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: square
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: square
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+status: {}
