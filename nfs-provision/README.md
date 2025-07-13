@@ -51,7 +51,7 @@ helm install nfs-delete . --set nfs.server=192.168.88.18 \
   --set nfs.path=/data/nfs-k8s/delete \
   --set storageClass.name=nfs-delete \
   --set storageClass.onDelete=Delete \
-  --set storageClass.accessModes=ReadWriteOneh \
+  --set storageClass.accessModes=ReadWriteOne \
   --create-namespace --namespace nfs-delete
 
 helm install nfs-retain . --set nfs.server=192.168.88.18 \
