@@ -3,13 +3,13 @@
 Một ngày đẹp trời pod bị lỗi. Bạn thử ngay lệnh "kubectl exec -it ..." vào pod kiểm tra.
 
 Nhưng quãi đạn, pod không hỗ trợ bất kỳ 1 command nào:
-- Không có /bin/bash, /bin/sh...???
-- Không có ls, cd...???
-- Không có netstat, telnet, traceroute...???
+- Không có `/bin/bash`, `/bin/sh`...???
+- Không có `ls, cd`...???
+- Không có `netstat, telnet, traceroute`...???
 
 Ngớ người đặt dấu chấm hỏi, hóa ra pod này dùng images distroless siêu bảo mật (https://github.com/GoogleContainerTools/distroless). Nó giúp gia tăng độ an toàn cho pod tránh khỏi các cuộc tấn công leo thang khi chiếm được quyền điều khiển Pod.
 
-Vậy admin k8s cluster phải làm sao??? -> bạn vẫn còn 1 cứu tinh. Đó chính là "kubectl debug" để tạo ra "Ephemeral Container" trong pod đang chạy.
+Vậy admin k8s cluster phải làm sao??? -> bạn vẫn còn 1 cứu tinh. Đó chính là `kubectl debug` để tạo ra `Ephemeral Container` trong pod đang chạy.
 
 # 2.Xây dựng
 
@@ -69,18 +69,22 @@ CMD ["main.jar"]
 ```
 
 
-Sau khi build được images, ta thực hiện đẩy lên docker-hub, private-registry hoặc đẩy bằng docker save , import ctr. Với 2 cách đầu quá thường xuyên làm rồi. Tôi sẽ test cách 3.
+Sau khi build được images, ta thực hiện đẩy lên `docker-hub, private-registry` hoặc đẩy local bằng `docker save , import ctr`. 
+
+Với 2 cách đầu quá thường xuyên làm rồi. Tôi sẽ test cách 3.
 ```bash
 # Save image ra file và scp sang các server worker-node
 docker image save docker.io/library/java-less:v1 > java-less.tar
 scp java-less.tar ${IP_OF_WORKER_NODE}
+
 # Import local images vào k8s
+ssh ${IP_OF_WORKER_NODE}
 ctr -n=k8s.io images ls
 ctr -n=k8s.io images import java-less.tar
 ctr -n=k8s.io images ls | grep java
 #(Kết quả):  docker.io/library/java-less:v1
 ```
-Ta thực hiện tạo deployment.yaml với imagePullPolicy: Never để load image trực tiếp từ worker-node (không tải từ docker-hub hoặc private registry).
+Ta thực hiện tạo deployment.yaml với `imagePullPolicy: Never` để load image trực tiếp từ worker-node (không tải từ docker-hub hoặc private registry).
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -108,8 +112,8 @@ spec:
 kubectl apply -f deployment.yaml
 kubectl get pod
 #NAME                    READY   STATUS    RESTARTS   AGE
-#app1-686584fffd-gsmw8   1/1     Running   0          3s
-#app1-686584fffd-lm88h   1/1     Running   0          3s
+# app1-686584fffd-gsmw8   1/1     Running   0          3s
+# app1-686584fffd-lm88h   1/1     Running   0          3s
 ```
 
 # 3.Test tình huống
@@ -130,9 +134,12 @@ kubectl exec -it app1-686584fffd-gsmw8 -- "java" "-version"
 
 ```
 ### Vậy làm sao để test netstat, ping, ps???
-`kubectl debug -it $TÊN_POD --target=$TÊN_CONAINER --image=$TÊN_IMAGES_BUSYBOX`
+```bash
+kubectl debug -it ${TÊN_POD} --target=${TÊN_CONAINER} --image=${TÊN_IMAGES_BUSYBOX}
+```
 
 ```bash
+# Lệnh chạy kubectl debug
 kubectl debug -it app1-686584fffd-gsmw8 --target=java-less --image=busybox
 
 # ps fauxww
@@ -159,3 +166,9 @@ PING 8.8.8.8 (8.8.8.8): 56 data bytes
 64 bytes from 8.8.8.8: seq=0 ttl=111 time=27.020 ms
 64 bytes from 8.8.8.8: seq=1 ttl=111 time=27.246 ms
 ```
+
+> Đã giải quyết xong đầu bài đưa ra. Xong.
+
+
+
+Refer: https://levelup.gitconnected.com/no-shell-no-problem-debugging-distroless-containers-in-kubernetes-fe7a5a739d62
